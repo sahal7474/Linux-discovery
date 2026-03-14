@@ -41,6 +41,6 @@ venv.bak/
 .idea/
 
 # React / Node
-discovery-ui/node_modules/
+node_modules/
 discovery-ui/build/
 discovery-ui/.env.local
