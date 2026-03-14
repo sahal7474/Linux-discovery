@@ -39,3 +39,8 @@ venv.bak/
 # IDEs
 .vscode/
 .idea/
+
+# React / Node
+discovery-ui/node_modules/
+discovery-ui/build/
+discovery-ui/.env.local
