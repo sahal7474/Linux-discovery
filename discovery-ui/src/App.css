@@ -45,3 +45,21 @@ td {
 
 .status-online { color: green; font-weight: bold; }
 .status-offline { color: red; }
+
+.refresh-btn {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.refresh-btn:hover {
+  background-color: #004080;
+}
+
+.refresh-btn:active {
+  background-color: #002b55;
+}

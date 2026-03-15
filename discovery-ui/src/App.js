@@ -1,47 +1,79 @@
+import { useState, useEffect } from 'react';
 import './App.css';
+import Navigation from './components/Navigation';
+import HostForm from './components/HostForm';
+import HostTable from './components/HostTable';
 
 function App() {
+  const [hosts, setHosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newIp, setNewIp] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const getHostsData = () => {
+    setLoading(true);
+    fetch('http://127.0.0.1:8000/api/hosts/')
+      .then(res => res.json())
+      .then(data => {
+        setHosts(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  };
+
+  useEffect(() => { getHostsData(); }, []);
+
+  const addHost = () => {
+    if (!newIp) return alert("Please enter an IP address");
+    fetch('http://127.0.0.1:8000/api/hosts/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ip_address: newIp, hostname: "Pending..." })
+    }).then(() => {
+      setNewIp("");
+      getHostsData();
+    });
+  };
+
+  const scanHost = (hostId) => {
+    if (!username || !password) return alert("Enter SSH credentials!");
+    fetch(`http://127.0.0.1:8000/api/hosts/${hostId}/run_discovery/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    })
+    .then(() => {
+      setUsername("");
+      setPassword("");
+      getHostsData();
+    })
+    .catch(err => alert(err.message));
+  };
+
   return (
     <div className="app-wrapper">
-      <nav className="navbar">
-        LINUX DISCOVERY TOOL
-      </nav>
+      <Navigation />
 
       <div className="container">
-        <h1>Host Inventory</h1>
-        <p>This is where our server data will eventually go.</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1>Host Inventory</h1>
+          <button className="refresh-btn" onClick={getHostsData}>↻ Refresh List</button>
+        </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Hostname</th>
-              <th>IP Address</th>
-              <th>OS Name</th>
-              <th>CPU Model</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* This is a "Mock" row to test our layout */}
-            <tr>
-              <td><strong>fedora-server-01</strong></td>
-              <td>192.168.1.50</td>
-              <td>Fedora 39</td>
-              <td>AMD Ryzen 5 5600G</td>
-              <td><span className="status-online">● Online</span></td>
-            </tr>
-            
-            <tr>
-              <td><strong>ubuntu-web-node</strong></td>
-              <td>192.168.1.51</td>
-              <td>Ubuntu 22.04</td>
-              <td>Intel i7-10700K</td>
-              <td><span className="status-offline">○ Offline</span></td>
-            </tr>
-          </tbody>
-        </table>
+        <p>Total Managed Hosts: {hosts.length}</p>
+
+        <HostForm 
+          newIp={newIp} setNewIp={setNewIp}
+          username={username} setUsername={setUsername}
+          password={password} setPassword={setPassword}
+          addHost={addHost}
+        />
+
+        {loading ? <p>Loading...</p> : (
+          <HostTable hosts={hosts} scanHost={scanHost} />
+        )}
       </div>
-
     </div>
   );
 }

@@ -7,6 +7,7 @@ def discover_host_facts(ip, username, password):
     Returns a dictionary of findings or raises an exception.
     """
     facts = {
+        "hostname":"Unknown",
         "os_name": "Unknown",
         "os_version": "Unknown",
         "cpu_model": "Unknown",
@@ -21,6 +22,10 @@ def discover_host_facts(ip, username, password):
         client.connect(ip, username=username, password=password, timeout=10)
         facts["is_online"] = True
 
+        stdin, stdout, stderr = client.exec_command('hostname')
+        hostname = stdout.read().decode().strip()
+        if hostname:
+            facts["hostname"] = hostname
         stdin,stdout,stderr = client.exec_command("cat /etc/os-release")
         os_release = stdout.read().decode()
         for line in os_release.splitlines():

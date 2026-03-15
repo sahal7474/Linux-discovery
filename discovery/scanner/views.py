@@ -25,6 +25,7 @@ class HostViewSet(viewsets.ModelViewSet):
 
         facts = discover_host_facts(host.ip_address, username, password)
 
+        host.hostname = facts.get('hostname', host.hostname)
         host.os_name = facts['os_name']
         host.os_version = facts['os_version']
         host.cpu_model = facts['cpu_model']
