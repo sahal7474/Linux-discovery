@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./discovery
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./discovery:/app:Z
+      - db_data:/app/data 
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=sqlite:////app/data/db.sqlite3
+
+  frontend:
+    build: ./discovery-ui
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./discovery-ui:/app:Z
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
